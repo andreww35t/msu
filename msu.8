@@ -1,0 +1,77 @@
+.\"	$Id: msu.8,v 1.5 2002/08/14 16:30:23 abs Exp $
+.\"
+.\" Copyright (c) 2002 by David Brownlee <abs@mono.org>
+.\" Absolutely no warranty.
+.\"
+.Dd Feb 13, 2002
+.Dt MSU 1
+.Sh NAME
+.Nm msu
+.Nd Passwordless mini (or mono) su access
+.Sh SYNOPSIS
+.Nm
+.Op Ar account
+.Sh DESCRIPTION
+.Nm
+grants passwordless access to accounts specified in
+.Pa msu.conf .
+It can be used as a login shell to provide multiple users with access to a
+single account, each with their own 'login' and 'password', or as convenient
+access to a shared account. It sets the uid and gid to that of the destination account but does not revoke any existing group membership.
+.Pp
+If given an account
+.Nm
+will check the
+.Pa msu.conf
+file to ensure that the current user has access to the specified account.
+.Pp
+If invoked without arguments
+.Nm
+will su to the first destination account in
+.Pa msu.conf
+to which the current user has access.
+.Pp
+.Nm
+will syslog all attempts, successful or not.
+.Sh FILE FORMAT
+Each line in
+.Pa msu.conf 
+is of the form:
+.Bd -literal
+destination_account:path_to_shell:account1,account2,account3
+.Ed
+.Sh FILES
+${PREFIX}/etc/msu.conf
+.Sh ENVIRONMENT
+.Nm
+sets the following environment variables.
+.Bl -tag -width OLD_USER
+.It Ev HOME
+The home directory of the destination user - taken from the password entry.
+.It Ev OLD_USER
+Any previous value of the
+.Ev USER
+variable.
+.It Ev SHELL
+The pathname to the shell, as specified in
+.Pa msu.conf .
+.It Ev USER
+The accountname of the destination user.
+.El
+.Nm
+also removes
+.Ev LD_PRELOAD
+and similar variables from the environment.
+.Sh EXAMPLES
+Sample msu.conf file:
+.Bd -literal
+web:/bin/tcsh:fu,bar,bundy
+pgsql:/bin/tcsh:fu,man,chu
+.Ed
+.Sh AUTHORS
+David Brownlee <abs@mono.org>.
+.Sh CAVEATS
+.Nm
+does
+.Em not
+sanitise the rest of the environment.
